@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #FFFDF9;
+    --foreground: #1C1C1C;
+    --primary: #1F4D3D;
+    --primary-foreground: #FFFFFF;
+    --secondary: #FAF6EE;
+    --accent: #D97D3D;
+    --border: #EAE3D2;
+  }
+
+  body {
+    background-color: #FFFDF9;
+    color: #1C1C1C;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Custom restrained transitions */
+.transition-subtle {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Image zoom on card hover */
+.group:hover .img-zoom {
+  transform: scale(1.03);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF6EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8D1C2;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B8B09F;
+}
