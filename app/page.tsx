@@ -325,7 +325,7 @@ export default async function HomePage() {
               </div>
               <h3 className="font-bold text-base text-charcoal">Community First</h3>
               <p className="text-xs text-charcoal-muted mt-2 leading-relaxed">
-                A tiny ₹25 welfare fund on every booking supports artisan health coverage and emergency trade loans.
+                Transparent ₹50 booking reservation guarantees worker arrival and supports artisan cooperative welfare benefits.
               </p>
             </div>
           </div>

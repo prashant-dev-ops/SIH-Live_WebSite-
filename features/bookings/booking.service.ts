@@ -9,8 +9,14 @@ export class BookingFeatureService {
     return {
       ...booking,
       workerImageUrl:
-        IMAGES.workers[booking.workerImageKey as WorkerImageKey] || IMAGES.hero.workerAtWork,
+        booking.workerImage ||
+        IMAGES.workers[booking.workerImageKey as WorkerImageKey] ||
+        IMAGES.hero.workerAtWork,
     };
+  }
+
+  async getBookingAmount(): Promise<number> {
+    return this.repo.getBookingAmount();
   }
 
   async getAllBookings(): Promise<BookingReceipt[]> {

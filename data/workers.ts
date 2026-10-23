@@ -1,4 +1,4 @@
-import { WorkerImageKey } from "./images";
+import { IMAGES, WorkerImageKey } from "./images";
 
 export interface WorkerServiceOffering {
   serviceId: string;
@@ -10,19 +10,23 @@ export interface WorkerServiceOffering {
 export interface Worker {
   id: string;
   name: string;
+  profession: string;
   trade: string;
+  image: string;
+  imageKey: WorkerImageKey;
   categorySlug: string;
   cooperativeSociety: string;
   registrationNumber: string;
   rating: number;
+  reviews: number;
   reviewCount: number;
+  experience: number;
   experienceYears: number;
   startingPrice: number;
   verified: boolean;
   availableToday: boolean;
   distanceKm: number;
   jobsCompleted: number;
-  imageKey: WorkerImageKey;
   skills: string[];
   bio: string;
   availableSlots: string[];
@@ -34,19 +38,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-1",
     name: "Ramesh Kumar",
+    profession: "Master Electrician & Wireman",
     trade: "Master Electrician & Wireman",
+    image: IMAGES.workers["w-1"],
+    imageKey: "w-1",
     categorySlug: "electrician",
     cooperativeSociety: "Bangalore Urban Electricians Self-Help Guild",
     registrationNumber: "KA/COOP/BLR/2019/314",
     rating: 4.94,
+    reviews: 182,
     reviewCount: 182,
+    experience: 12,
     experienceYears: 12,
     startingPrice: 199,
     verified: true,
     availableToday: true,
     distanceKm: 1.8,
     jobsCompleted: 540,
-    imageKey: "w-1",
     languages: ["Kannada", "Hindi", "English"],
     bio: "Government certified class-1 wireman with 12 years experience across residential and commercial electrification. Active member of the Bangalore Urban Electrical Cooperative since 2019.",
     skills: [
@@ -94,19 +102,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-2",
     name: "Suresh Sharma",
+    profession: "Senior Plumbing Specialist",
     trade: "Senior Plumbing Specialist",
+    image: IMAGES.workers["w-2"],
+    imageKey: "w-2",
     categorySlug: "plumber",
     cooperativeSociety: "Pashchim Vihar Sanitation Artisans Union",
     registrationNumber: "DL/SAN/COOP/2018/109",
     rating: 4.88,
+    reviews: 135,
     reviewCount: 135,
+    experience: 14,
     experienceYears: 14,
     startingPrice: 249,
     verified: true,
     availableToday: true,
     distanceKm: 2.3,
     jobsCompleted: 620,
-    imageKey: "w-2",
     languages: ["Hindi", "Punjabi"],
     bio: "Specialist in concealed copper and CPVC water pipelines, high-pressure booster pump setups, and bathroom leak rectifications without unneeded tile breakage.",
     skills: [
@@ -153,19 +165,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-3",
     name: "Manoj Vishwakarma",
+    profession: "Master Carpenter & Wood Craftsman",
     trade: "Master Carpenter & Wood Craftsman",
+    image: IMAGES.workers["w-3"],
+    imageKey: "w-3",
     categorySlug: "carpenter",
     cooperativeSociety: "Shree Vishwakarma Woodworkers Cooperative",
     registrationNumber: "MH/PUN/WOOD/2017/512",
     rating: 4.92,
+    reviews: 96,
     reviewCount: 96,
+    experience: 16,
     experienceYears: 16,
     startingPrice: 349,
     verified: true,
     availableToday: false,
     distanceKm: 3.1,
     jobsCompleted: 430,
-    imageKey: "w-3",
     languages: ["Marathi", "Hindi", "English"],
     bio: "Hereditary woodworker and licensed furniture maker. Expertise in modular kitchen hardware adjustments, mortise locks, teak restoration, and custom shelving.",
     skills: [
@@ -210,19 +226,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-4",
     name: "Rajesh Verma",
+    profession: "Decorative & Protective Painter",
     trade: "Decorative & Protective Painter",
+    image: IMAGES.workers["w-4"],
+    imageKey: "w-4",
     categorySlug: "painter",
     cooperativeSociety: "Metropolitan Surface Finishers Cooperative",
     registrationNumber: "DL/FIN/COOP/2020/220",
     rating: 4.86,
+    reviews: 84,
     reviewCount: 84,
+    experience: 9,
     experienceYears: 9,
     startingPrice: 499,
     verified: true,
     availableToday: true,
     distanceKm: 2.7,
     jobsCompleted: 290,
-    imageKey: "w-4",
     languages: ["Hindi", "Bhojpuri"],
     bio: "Punctual, dust-conscious painting professional with deep expertise in anti-damp treatments, putty skimming, and odorless interior finishes.",
     skills: [
@@ -261,19 +281,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-5",
     name: "Sunita Devi",
+    profession: "Sanitation & Deep Cleaning Leader",
     trade: "Sanitation & Deep Cleaning Leader",
+    image: IMAGES.workers["w-5"],
+    imageKey: "w-5",
     categorySlug: "cleaning",
     cooperativeSociety: "Mahila Pragati Domestic Workers Cooperative",
     registrationNumber: "KA/BLR/WOMEN/2021/894",
     rating: 4.97,
+    reviews: 245,
     reviewCount: 245,
+    experience: 8,
     experienceYears: 8,
     startingPrice: 399,
     verified: true,
     availableToday: true,
     distanceKm: 1.2,
     jobsCompleted: 780,
-    imageKey: "w-5",
     languages: ["Hindi", "Kannada"],
     bio: "Trained in industrial hygiene and hospital-grade home sanitization. Uses eco-safe biodegradable citrus cleaners that are safe for pets and infants.",
     skills: [
@@ -319,19 +343,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-6",
     name: "Dinesh Yadav",
+    profession: "Professional Chauffeur & Driver",
     trade: "Professional Chauffeur & Driver",
+    image: IMAGES.workers["w-6"],
+    imageKey: "w-6",
     categorySlug: "driver",
     cooperativeSociety: "Rashtriya Sarvajanik Chalak Sahakari Samiti",
     registrationNumber: "MH/MUM/DRV/2016/741",
     rating: 4.91,
+    reviews: 168,
     reviewCount: 168,
+    experience: 13,
     experienceYears: 13,
     startingPrice: 349,
     verified: true,
     availableToday: true,
     distanceKm: 2.1,
     jobsCompleted: 610,
-    imageKey: "w-6",
     languages: ["Hindi", "Marathi", "English"],
     bio: "Police-verified chauffeur with zero-accident record over 13 years. Proficient in manual, automatic, and high-end SUVs with punctual navigation skills.",
     skills: [
@@ -370,19 +398,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-7",
     name: "Ramlal Mali",
+    profession: "Landscape & Plant Health Specialist",
     trade: "Landscape & Plant Health Specialist",
+    image: IMAGES.workers["w-7"],
+    imageKey: "w-7",
     categorySlug: "gardener",
     cooperativeSociety: "Green Earth Urban Horticulturists Cooperative",
     registrationNumber: "RJ/JPR/HORT/2019/332",
     rating: 4.89,
+    reviews: 78,
     reviewCount: 78,
+    experience: 15,
     experienceYears: 15,
     startingPrice: 299,
     verified: true,
     availableToday: false,
     distanceKm: 3.5,
     jobsCompleted: 310,
-    imageKey: "w-7",
     languages: ["Hindi", "Rajasthani"],
     bio: "Botanical caretaker passionate about indigenous flowering varieties, organic neem pest deterrents, and indoor air-purifying foliage setups.",
     skills: [
@@ -421,19 +453,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-8",
     name: "Lakshmi Nair",
+    profession: "Senior Geriatric Caregiver & Companion",
     trade: "Senior Geriatric Caregiver & Companion",
+    image: IMAGES.workers["w-8"],
+    imageKey: "w-8",
     categorySlug: "caregiver",
     cooperativeSociety: "Karuna Community Health & Caregivers Alliance",
     registrationNumber: "KL/COOP/CARE/2018/652",
     rating: 4.98,
+    reviews: 112,
     reviewCount: 112,
+    experience: 10,
     experienceYears: 10,
     startingPrice: 599,
     verified: true,
     availableToday: true,
     distanceKm: 2.0,
     jobsCompleted: 440,
-    imageKey: "w-8",
     languages: ["Malayalam", "Tamil", "English", "Hindi"],
     bio: "Certified assistant for seniors with mobility challenges, dementia care, and post-surgery rehabilitation. Emphasizes emotional warmth, dignity, and gentle care.",
     skills: [
@@ -471,19 +507,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-9",
     name: "Anil Kulkarni",
+    profession: "HVAC & Home Appliance Technician",
     trade: "HVAC & Home Appliance Technician",
+    image: IMAGES.workers["w-9"],
+    imageKey: "w-9",
     categorySlug: "appliance-repair",
     cooperativeSociety: "Maharashtra Technical Technicians Cooperative",
     registrationNumber: "MH/PUN/TECH/2017/801",
     rating: 4.93,
+    reviews: 154,
     reviewCount: 154,
+    experience: 11,
     experienceYears: 11,
     startingPrice: 299,
     verified: true,
     availableToday: true,
     distanceKm: 1.5,
     jobsCompleted: 510,
-    imageKey: "w-9",
     languages: ["Marathi", "Hindi", "English"],
     bio: "Factory-trained on inverter split ACs, front-load washers, and double-door frost-free refrigerators. Uses certified multimeter diagnostics and original OEM parts.",
     skills: [
@@ -529,19 +569,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-10",
     name: "Vikram Chauhan",
+    profession: "Eco Pest Management Specialist",
     trade: "Eco Pest Management Specialist",
+    image: IMAGES.workers["w-10"],
+    imageKey: "w-10",
     categorySlug: "pest-control",
     cooperativeSociety: "Clean Living Environmental Workers Union",
     registrationNumber: "DL/ENV/COOP/2021/119",
     rating: 4.87,
+    reviews: 92,
     reviewCount: 92,
+    experience: 7,
     experienceYears: 7,
     startingPrice: 699,
     verified: true,
     availableToday: true,
     distanceKm: 2.8,
     jobsCompleted: 340,
-    imageKey: "w-10",
     languages: ["Hindi", "English"],
     bio: "Government certified vector and termite control operator. Employs non-hazardous herbal formulations and advanced ultrasonic deterrents.",
     skills: [
@@ -580,19 +624,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-11",
     name: "Pradeep Patil",
+    profession: "Switchboard & Power Distribution Specialist",
     trade: "Switchboard & Power Distribution Specialist",
+    image: IMAGES.workers["w-11"],
+    imageKey: "w-11",
     categorySlug: "electrician",
     cooperativeSociety: "Bangalore Urban Electricians Self-Help Guild",
     registrationNumber: "KA/COOP/BLR/2020/556",
     rating: 4.90,
+    reviews: 118,
     reviewCount: 118,
+    experience: 9,
     experienceYears: 9,
     startingPrice: 199,
     verified: true,
     availableToday: true,
     distanceKm: 3.2,
     jobsCompleted: 390,
-    imageKey: "w-11",
     languages: ["Kannada", "Hindi", "Marathi"],
     bio: "Precision residential electrician focused on modern architectural LED strip lighting, distribution boards, and zero-spark safety setups.",
     skills: [
@@ -631,19 +679,23 @@ export const MOCK_WORKERS: Worker[] = [
   {
     id: "w-12",
     name: "Geeta Bai",
+    profession: "Eco Cleaning & Floor Restoration Expert",
     trade: "Eco Cleaning & Floor Restoration Expert",
+    image: IMAGES.workers["w-12"],
+    imageKey: "w-12",
     categorySlug: "cleaning",
     cooperativeSociety: "Mahila Pragati Domestic Workers Cooperative",
     registrationNumber: "KA/BLR/WOMEN/2020/411",
     rating: 4.95,
+    reviews: 204,
     reviewCount: 204,
+    experience: 10,
     experienceYears: 10,
     startingPrice: 399,
     verified: true,
     availableToday: false,
     distanceKm: 2.4,
     jobsCompleted: 580,
-    imageKey: "w-12",
     languages: ["Hindi", "Kannada", "Telugu"],
     bio: "Dedicated specialist in marble buffing, kitchen deep cleaning, and post-tenancy sanitation. Highly recommended for detailed, meticulous floor work.",
     skills: [

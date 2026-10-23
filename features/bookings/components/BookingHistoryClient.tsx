@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
+  Coins,
 } from "lucide-react";
 import { bookingFeatureService } from "../booking.service";
 import { BookingReceipt, BookingStatus } from "../booking.types";
@@ -22,11 +23,15 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { formatDate } from "@/lib/utils";
 
-export function BookingHistoryClient() {
+interface BookingHistoryClientProps {
+  initialBookings?: BookingReceipt[];
+}
+
+export function BookingHistoryClient({ initialBookings = [] }: BookingHistoryClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<BookingStatus>("upcoming");
-  const [bookings, setBookings] = useState<BookingReceipt[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [bookings, setBookings] = useState<BookingReceipt[]>(initialBookings);
+  const [loading, setLoading] = useState(false);
   const [selectedBookingForModal, setSelectedBookingForModal] =
     useState<BookingReceipt | null>(null);
 
@@ -131,97 +136,110 @@ export function BookingHistoryClient() {
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredBookings.map((booking) => (
-            <div
-              key={booking.id}
-              className="bg-white rounded-xl border border-cream-border hover:border-forest/40 p-5 sm:p-6 transition-subtle hover:shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
-            >
-              {/* Left: Worker photo & core details */}
-              <div className="flex items-start gap-4 flex-1">
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden bg-cream-warm border border-cream-border flex-shrink-0">
-                  <img
-                    src={booking.workerImageUrl}
-                    alt={booking.workerName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+          {filteredBookings.map((booking) => {
+            const bookingAmt = booking.bookingAmount || 50;
+            const srvPrice = booking.serviceAmount || booking.totalAmount;
+            const balanceDue = booking.remainingAmount ?? Math.max(0, srvPrice - bookingAmt);
 
-                <div className="space-y-1 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-charcoal-light">
-                      {booking.id}
-                    </span>
-
-                    {booking.status === "upcoming" && (
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> Scheduled
-                      </span>
-                    )}
-                    {booking.status === "completed" && (
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-forest-light text-forest inline-flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Completed
-                      </span>
-                    )}
-                    {booking.status === "cancelled" && (
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-100 text-red-800 inline-flex items-center gap-1">
-                        <XCircle className="w-3 h-3" /> Cancelled
-                      </span>
-                    )}
+            return (
+              <div
+                key={booking.id}
+                className="bg-white rounded-xl border border-cream-border hover:border-forest/40 p-5 sm:p-6 transition-subtle hover:shadow-subtle flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
+              >
+                {/* Left: Worker photo & core details */}
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden bg-cream-warm border border-cream-border flex-shrink-0">
+                    <img
+                      src={booking.workerImageUrl}
+                      alt={booking.workerName}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
 
-                  <h3 className="font-bold text-base text-charcoal">
-                    {booking.serviceName}
-                  </h3>
-                  <p className="text-xs text-charcoal-muted">
-                    Worker: <strong className="text-charcoal">{booking.workerName}</strong> (
-                    {booking.workerTrade})
-                  </p>
+                  <div className="space-y-1 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-xs font-semibold text-charcoal-light">
+                        {booking.id}
+                      </span>
 
-                  <div className="pt-1 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-charcoal-muted">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-charcoal-light" />
-                      <span>{booking.date}</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-charcoal-light" />
-                      <span>{booking.timeSlot}</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-charcoal-light" />
-                      <span className="truncate max-w-[200px]">{booking.city}</span>
-                    </span>
+                      {booking.status === "upcoming" && (
+                        <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> Scheduled
+                        </span>
+                      )}
+                      {booking.status === "completed" && (
+                        <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-forest-light text-forest inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Completed
+                        </span>
+                      )}
+                      {booking.status === "cancelled" && (
+                        <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-100 text-red-800 inline-flex items-center gap-1">
+                          <XCircle className="w-3 h-3" /> Cancelled
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="font-bold text-base text-charcoal">
+                      {booking.serviceName}
+                    </h3>
+                    <p className="text-xs text-charcoal-muted">
+                      Worker: <strong className="text-charcoal">{booking.workerName}</strong> (
+                      {booking.workerTrade})
+                    </p>
+
+                    <div className="pt-1 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-charcoal-muted">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-charcoal-light" />
+                        <span>{booking.date}</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-charcoal-light" />
+                        <span>{booking.timeSlot}</span>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-charcoal-light" />
+                        <span className="truncate max-w-[200px]">{booking.city}</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Right: Amount & Action buttons */}
-              <div className="w-full md:w-auto flex md:flex-col items-center md:items-end justify-between gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-cream-border/60">
-                <div className="text-left md:text-right">
-                  <span className="text-[11px] text-charcoal-muted block">Amount</span>
-                  <span className="text-lg font-bold text-forest">₹{booking.totalAmount}</span>
-                </div>
+                {/* Right: Amount & Action buttons */}
+                <div className="w-full md:w-auto flex md:flex-col items-center md:items-end justify-between gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-cream-border/60">
+                  <div className="text-left md:text-right">
+                    <span className="text-[11px] text-charcoal-muted block">
+                      Booking Paid: <strong className="text-forest">₹{bookingAmt}</strong>
+                    </span>
+                    <span className="text-xs text-charcoal-muted block">
+                      Service Price: ₹{srvPrice}
+                    </span>
+                    <span className="text-[11px] font-semibold text-charcoal block">
+                      Balance: ₹{balanceDue}
+                    </span>
+                  </div>
 
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedBookingForModal(booking)}
-                    className="flex items-center gap-1.5"
-                  >
-                    <Eye className="w-3.5 h-3.5 text-charcoal-muted" />
-                    <span>View Details</span>
-                  </Button>
-
-                  <Link href={`/booking/${booking.workerId}`}>
-                    <Button variant="secondary" size="sm" className="flex items-center gap-1.5">
-                      <RotateCcw className="w-3.5 h-3.5 text-forest" />
-                      <span>Book Again</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedBookingForModal(booking)}
+                      className="flex items-center gap-1.5"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-charcoal-muted" />
+                      <span>View Details</span>
                     </Button>
-                  </Link>
+
+                    <Link href={`/booking/${booking.workerId}`}>
+                      <Button variant="secondary" size="sm" className="flex items-center gap-1.5">
+                        <RotateCcw className="w-3.5 h-3.5 text-forest" />
+                        <span>Book Again</span>
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -271,18 +289,30 @@ export function BookingHistoryClient() {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-lg border border-cream-border space-y-1.5">
+            <div className="p-3.5 rounded-lg border border-cream-border space-y-2">
               <div className="flex justify-between">
-                <span className="text-charcoal-muted">Service Charge</span>
-                <span>₹{selectedBookingForModal.serviceAmount}</span>
+                <span className="text-charcoal-muted">Worker Service Price:</span>
+                <span className="font-semibold text-charcoal">
+                  ₹{selectedBookingForModal.serviceAmount || selectedBookingForModal.totalAmount}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-charcoal-muted">Cooperative Welfare Fee</span>
-                <span>₹{selectedBookingForModal.platformFee}</span>
+                <span className="text-charcoal-muted">Booking Confirmation Amount (Paid):</span>
+                <span className="font-bold text-forest">
+                  ₹{selectedBookingForModal.bookingAmount || 50}
+                </span>
               </div>
-              <div className="flex justify-between font-bold text-sm text-forest pt-1.5 border-t border-cream-border">
-                <span>Total</span>
-                <span>₹{selectedBookingForModal.totalAmount}</span>
+              <div className="flex justify-between font-bold text-sm text-charcoal pt-1.5 border-t border-cream-border">
+                <span>Remaining Balance Payable After Service:</span>
+                <span className="text-forest">
+                  ₹
+                  {selectedBookingForModal.remainingAmount ??
+                    Math.max(
+                      0,
+                      (selectedBookingForModal.serviceAmount || selectedBookingForModal.totalAmount) -
+                        (selectedBookingForModal.bookingAmount || 50)
+                    )}
+                </span>
               </div>
             </div>
 

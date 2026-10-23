@@ -1,3 +1,5 @@
+import { BOOKING_AMOUNT } from "@/lib/constants";
+
 export type BookingStatus = "upcoming" | "completed" | "cancelled";
 
 export interface Booking {
@@ -6,13 +8,16 @@ export interface Booking {
   workerName: string;
   workerTrade: string;
   workerImageKey: string;
+  workerImage?: string;
   serviceName: string;
   categorySlug: string;
   date: string;
   timeSlot: string;
-  serviceAmount: number;
-  platformFee: number;
-  totalAmount: number;
+  serviceAmount: number; // Worker's actual service price
+  bookingAmount: number; // Booking confirmation reservation amount (₹50)
+  amountPaidNow: number; // Amount paid at time of booking (₹50)
+  remainingAmount: number; // Balance payable to worker after completion
+  totalAmount: number; // Total service price
   status: BookingStatus;
   customerName: string;
   customerPhone: string;
@@ -33,8 +38,10 @@ export const INITIAL_MOCK_BOOKINGS: Booking[] = [
     date: "2026-09-09",
     timeSlot: "11:00 AM - 12:00 PM",
     serviceAmount: 199,
-    platformFee: 25,
-    totalAmount: 224,
+    bookingAmount: BOOKING_AMOUNT,
+    amountPaidNow: BOOKING_AMOUNT,
+    remainingAmount: 199 - BOOKING_AMOUNT,
+    totalAmount: 199,
     status: "upcoming",
     customerName: "Rahul Sharma",
     customerPhone: "+91 98450 12345",
@@ -53,8 +60,10 @@ export const INITIAL_MOCK_BOOKINGS: Booking[] = [
     date: "2026-08-30",
     timeSlot: "02:00 PM - 03:00 PM",
     serviceAmount: 799,
-    platformFee: 25,
-    totalAmount: 824,
+    bookingAmount: BOOKING_AMOUNT,
+    amountPaidNow: BOOKING_AMOUNT,
+    remainingAmount: 799 - BOOKING_AMOUNT,
+    totalAmount: 799,
     status: "completed",
     customerName: "Rahul Sharma",
     customerPhone: "+91 98450 12345",
@@ -73,8 +82,10 @@ export const INITIAL_MOCK_BOOKINGS: Booking[] = [
     date: "2026-08-14",
     timeSlot: "03:00 PM - 04:00 PM",
     serviceAmount: 249,
-    platformFee: 25,
-    totalAmount: 274,
+    bookingAmount: BOOKING_AMOUNT,
+    amountPaidNow: BOOKING_AMOUNT,
+    remainingAmount: 249 - BOOKING_AMOUNT,
+    totalAmount: 249,
     status: "cancelled",
     customerName: "Rahul Sharma",
     customerPhone: "+91 98450 12345",

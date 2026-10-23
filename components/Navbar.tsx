@@ -429,8 +429,8 @@ export function Navbar() {
               <span className="font-semibold text-charcoal">{selectedCity}</span>
             </div>
             <div className="flex justify-between py-1 text-xs">
-              <span className="text-charcoal-muted">Welfare Contributions Paid</span>
-              <span className="font-semibold text-forest">₹75 (3 bookings)</span>
+              <span className="text-charcoal-muted">Booking Reservations Paid</span>
+              <span className="font-semibold text-forest">₹150 (3 bookings at ₹50)</span>
             </div>
             <div className="flex justify-between py-1 text-xs">
               <span className="text-charcoal-muted">Cooperative Federation</span>

@@ -7,10 +7,12 @@ export interface BookingDraft {
   workerName: string;
   workerTrade: string;
   workerImageKey: string;
+  workerImage?: string;
   categorySlug: string;
   serviceId: string;
   serviceName: string;
-  serviceAmount: number;
+  serviceAmount: number; // Worker's actual service price (e.g. ₹299)
+  bookingAmount?: number; // Booking reservation amount (₹50)
   date: string;
   timeSlot: string;
   customerName: string;

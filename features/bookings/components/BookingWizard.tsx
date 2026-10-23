@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -14,11 +14,12 @@ import {
   Coins,
   Check,
   Sparkles,
+  Info,
 } from "lucide-react";
 import { WorkerViewModel } from "@/features/workers/worker.types";
 import { bookingFeatureService } from "../booking.service";
 import { BookingReceipt } from "../booking.types";
-import { APP_CONFIG } from "@/lib/constants";
+import { BOOKING_CONFIG } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
@@ -33,6 +34,15 @@ export function BookingWizard({ worker }: BookingWizardProps) {
   const initialServiceId =
     searchParams.get("serviceId") || worker.servicesPricing[0]?.serviceId || "";
   const initialSlot = searchParams.get("slot") || worker.availableSlots[0] || "";
+
+  // Centralized booking reservation amount from service/config layer
+  const [bookingAmount, setBookingAmount] = useState<number>(BOOKING_CONFIG.bookingAmount);
+
+  useEffect(() => {
+    bookingFeatureService.getBookingAmount().then((amt) => {
+      if (amt) setBookingAmount(amt);
+    });
+  }, []);
 
   // Wizard state: steps 1 to 5
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -73,9 +83,8 @@ export function BookingWizard({ worker }: BookingWizardProps) {
     worker.servicesPricing.find((s) => s.serviceId === selectedServiceId) ||
     worker.servicesPricing[0];
 
-  const serviceAmount = selectedService?.price || worker.startingPrice;
-  const platformFee = APP_CONFIG.platformFee;
-  const totalAmount = serviceAmount + platformFee;
+  const servicePrice = selectedService?.price || worker.startingPrice;
+  const balanceAfterService = Math.max(0, servicePrice - bookingAmount);
 
   const handleConfirm = async () => {
     setIsSubmitting(true);
@@ -85,10 +94,12 @@ export function BookingWizard({ worker }: BookingWizardProps) {
         workerName: worker.name,
         workerTrade: worker.trade,
         workerImageKey: worker.imageKey,
+        workerImage: worker.imageUrl || worker.image,
         categorySlug: worker.categorySlug,
         serviceId: selectedService.serviceId,
         serviceName: selectedService.name,
-        serviceAmount,
+        serviceAmount: servicePrice,
+        bookingAmount,
         date: availableDates[selectedDateIndex].fullDate,
         timeSlot: selectedSlot,
         customerName,
@@ -121,7 +132,7 @@ export function BookingWizard({ worker }: BookingWizardProps) {
           Booking Confirmed!
         </h1>
         <p className="text-sm text-charcoal-muted mt-1">
-          Your service has been scheduled directly with {confirmedBooking.workerName}.
+          Your appointment has been reserved directly with {confirmedBooking.workerName}.
         </p>
 
         {/* Receipt Box */}
@@ -134,21 +145,21 @@ export function BookingWizard({ worker }: BookingWizardProps) {
           </div>
 
           <div className="flex items-center gap-3 py-1">
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-cream-warm flex-shrink-0">
+            <div className="w-14 h-14 rounded-xl overflow-hidden bg-cream-warm border border-cream-border flex-shrink-0">
               <img
-                src={worker.imageUrl}
+                src={confirmedBooking.workerImageUrl || worker.imageUrl}
                 alt={confirmedBooking.workerName}
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <p className="font-bold text-charcoal">{confirmedBooking.workerName}</p>
-              <p className="text-xs text-charcoal-muted">{confirmedBooking.workerTrade}</p>
+              <p className="font-bold text-charcoal text-base">{confirmedBooking.workerName}</p>
+              <p className="text-xs text-charcoal-muted font-medium">{confirmedBooking.workerTrade}</p>
               <p className="text-[11px] text-forest font-medium">{worker.cooperativeSociety}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-cream-border/80 text-xs">
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-cream-border/80 text-xs">
             <div>
               <span className="text-charcoal-muted block">Selected Service</span>
               <span className="font-semibold text-charcoal">{confirmedBooking.serviceName}</span>
@@ -160,12 +171,20 @@ export function BookingWizard({ worker }: BookingWizardProps) {
               </span>
             </div>
             <div>
-              <span className="text-charcoal-muted block">Service Location</span>
-              <span className="font-semibold text-charcoal">{confirmedBooking.address}</span>
+              <span className="text-charcoal-muted block">Worker Service Price</span>
+              <span className="font-semibold text-charcoal">₹{confirmedBooking.serviceAmount}</span>
             </div>
             <div>
-              <span className="text-charcoal-muted block">Total Payable (Post Service)</span>
-              <span className="font-bold text-forest text-sm">₹{confirmedBooking.totalAmount}</span>
+              <span className="text-charcoal-muted block">Booking Amount Paid</span>
+              <span className="font-bold text-forest">₹{confirmedBooking.bookingAmount}</span>
+            </div>
+            <div>
+              <span className="text-charcoal-muted block">Service Location</span>
+              <span className="font-semibold text-charcoal truncate">{confirmedBooking.address}</span>
+            </div>
+            <div>
+              <span className="text-charcoal-muted block">Balance Due After Service</span>
+              <span className="font-bold text-charcoal">₹{confirmedBooking.remainingAmount}</span>
             </div>
           </div>
         </div>
@@ -174,7 +193,7 @@ export function BookingWizard({ worker }: BookingWizardProps) {
         <div className="mt-6 p-4 rounded-lg bg-emerald-50 border border-emerald-200/60 text-xs text-emerald-900 text-left flex items-start gap-2.5">
           <ShieldCheck className="w-4 h-4 text-emerald-700 flex-shrink-0 mt-0.5" />
           <p>
-            An SMS confirmation with the artisan&apos;s cooperative badge ID has been queued. No advance online payment is required; pay directly upon task completion.
+            You have paid <strong>₹{confirmedBooking.bookingAmount}</strong> to confirm your slot. The remaining balance of <strong>₹{confirmedBooking.remainingAmount}</strong> will be paid directly to {confirmedBooking.workerName.split(" ")[0]} via Cash or UPI after service completion.
           </p>
         </div>
 
@@ -197,6 +216,19 @@ export function BookingWizard({ worker }: BookingWizardProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Top Banner Explaining Booking Policy */}
+      <div className="mb-6 p-3.5 rounded-xl bg-forest-light/60 border border-forest/20 flex items-center justify-between gap-3 text-xs text-forest">
+        <div className="flex items-center gap-2">
+          <Info className="w-4 h-4 flex-shrink-0 text-forest" />
+          <span>
+            <strong>Pay ₹{bookingAmount} to confirm your booking.</strong> The remaining service balance is paid directly to the artisan upon work completion.
+          </span>
+        </div>
+        <span className="font-bold text-forest bg-white/80 px-2 py-0.5 rounded border border-forest/15 whitespace-nowrap">
+          Booking Amount: ₹{bookingAmount}
+        </span>
+      </div>
+
       {/* Step Progress Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between text-xs text-charcoal-muted mb-2 font-medium">
@@ -229,7 +261,7 @@ export function BookingWizard({ worker }: BookingWizardProps) {
                   1. Choose the Service Required
                 </h2>
                 <p className="text-xs text-charcoal-muted mt-0.5">
-                  Select which job {worker.name} should attend to. Rates are fixed by the guild.
+                  Select which job {worker.name} should attend to. Service price is fixed by cooperative guild standard.
                 </p>
               </div>
 
@@ -258,12 +290,14 @@ export function BookingWizard({ worker }: BookingWizardProps) {
                           <span className="text-sm font-bold text-charcoal">{item.name}</span>
                         </div>
                         <p className="text-xs text-charcoal-muted ml-5">
-                          Approx. {item.durationMinutes} mins · Standard cooperative tariff
+                          Approx. {item.durationMinutes} mins · Cooperative tariff
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-base font-bold text-forest">₹{item.price}</span>
-                        <span className="block text-[10px] text-charcoal-light">Base rate</span>
+                        <span className="text-base font-bold text-charcoal">₹{item.price}</span>
+                        <span className="block text-[10px] text-forest font-semibold">
+                          Reserve with ₹{bookingAmount}
+                        </span>
                       </div>
                     </div>
                   );
@@ -347,7 +381,7 @@ export function BookingWizard({ worker }: BookingWizardProps) {
                   3. Select Arrival Time Slot
                 </h2>
                 <p className="text-xs text-charcoal-muted mt-0.5">
-                  Artisans arrive within the reserved 60-minute appointment window.
+                  Artisans arrive within the reserved appointment window.
                 </p>
               </div>
 
@@ -407,7 +441,7 @@ export function BookingWizard({ worker }: BookingWizardProps) {
                   4. Service Address & Contact Details
                 </h2>
                 <p className="text-xs text-charcoal-muted mt-0.5">
-                  Provide accurate details for direct dispatch and entry security.
+                  Provide accurate details for direct artisan dispatch and entry verification.
                 </p>
               </div>
 
@@ -499,68 +533,79 @@ export function BookingWizard({ worker }: BookingWizardProps) {
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-bold text-charcoal">
-                  5. Review Booking Summary & Total
+                  5. Review Booking Summary & Payment
                 </h2>
                 <p className="text-xs text-charcoal-muted mt-0.5">
-                  Confirm the appointment details. 90% of the service fee is transferred directly to the cooperative worker.
+                  Confirm your appointment details below.
                 </p>
               </div>
 
-              {/* Breakdown Table */}
-              <div className="p-4 rounded-xl bg-cream border border-cream-border space-y-3 text-xs">
-                <div className="flex justify-between py-1 border-b border-cream-border/70">
-                  <span className="text-charcoal-muted">Worker Name</span>
-                  <span className="font-bold text-charcoal">{worker.name}</span>
+              {/* Exact Booking Summary Layout */}
+              <div className="p-5 rounded-xl bg-cream border border-cream-border space-y-3.5 text-xs">
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Worker:</span>
+                  <span className="font-bold text-charcoal text-sm">{worker.name}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-cream-border/70">
-                  <span className="text-charcoal-muted">Selected Service</span>
-                  <span className="font-bold text-charcoal">{selectedService.name}</span>
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Service:</span>
+                  <span className="font-bold text-charcoal text-sm">{selectedService.name}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-cream-border/70">
-                  <span className="text-charcoal-muted">Scheduled Date</span>
-                  <span className="font-bold text-charcoal">
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Service Price:</span>
+                  <span className="font-semibold text-charcoal text-sm">₹{servicePrice}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Booking Amount:</span>
+                  <span className="font-semibold text-forest text-sm">₹{bookingAmount}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Date:</span>
+                  <span className="font-semibold text-charcoal">
                     {availableDates[selectedDateIndex].displayDate} (
                     {availableDates[selectedDateIndex].dayName})
                   </span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-cream-border/70">
-                  <span className="text-charcoal-muted">Time Slot</span>
-                  <span className="font-bold text-charcoal">{selectedSlot}</span>
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Time:</span>
+                  <span className="font-semibold text-charcoal">{selectedSlot}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-cream-border/70">
-                  <span className="text-charcoal-muted">Destination Address</span>
-                  <span className="font-bold text-charcoal max-w-[240px] text-right truncate">
+                <div className="flex justify-between py-1.5 border-b border-cream-border/70">
+                  <span className="text-charcoal-muted">Address:</span>
+                  <span className="font-semibold text-charcoal max-w-[240px] text-right truncate">
                     {streetAddress}, {city}
                   </span>
                 </div>
 
-                <div className="pt-2 space-y-1.5">
-                  <div className="flex justify-between text-charcoal">
-                    <span>Base Service Charge</span>
-                    <span className="font-semibold">₹{serviceAmount}</span>
-                  </div>
-                  <div className="flex justify-between text-charcoal">
-                    <span className="flex items-center gap-1">
-                      <span>Cooperative Welfare & Insurance Fund</span>
-                      <span className="text-[10px] text-forest font-semibold">(Fixed)</span>
+                {/* Prominent Amount to Pay Now Box */}
+                <div className="mt-4 pt-3 border-t-2 border-forest/30 bg-white p-4 rounded-xl border border-cream-border flex items-center justify-between shadow-subtle">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-charcoal-muted font-bold block">
+                      Amount to pay now:
                     </span>
-                    <span className="font-semibold">₹{platformFee}</span>
+                    <span className="text-xs text-charcoal-muted mt-0.5 block">
+                      Pay ₹{bookingAmount} to confirm your booking
+                    </span>
                   </div>
-                  <div className="flex justify-between text-sm font-bold text-forest pt-2 border-t border-cream-border">
-                    <span>Total Amount Payable</span>
-                    <span>₹{totalAmount}</span>
+                  <div className="text-right">
+                    <span className="text-3xl font-extrabold text-forest tracking-tight block">
+                      ₹{bookingAmount}
+                    </span>
+                    <span className="text-[11px] text-charcoal-muted">
+                      Balance ₹{balanceAfterService} after service
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-lg bg-forest-light/60 border border-forest/20 text-xs text-forest flex items-start gap-2">
-                <Coins className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              {/* Informative Note */}
+              <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200/60 text-xs text-emerald-900 flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 flex-shrink-0 text-emerald-700 mt-0.5" />
                 <p>
-                  No payment is charged today. You will inspect the service upon completion and pay ₹{totalAmount} via Cash or UPI directly to {worker.name.split(" ")[0]}.
+                  <strong>Pay ₹{bookingAmount} to confirm your booking.</strong> The remaining balance of ₹{balanceAfterService} is payable directly to {worker.name.split(" ")[0]} via Cash or UPI only after you inspect the completed work.
                 </p>
               </div>
 
-              <div className="pt-4 flex justify-between">
+              <div className="pt-4 flex justify-between items-center">
                 <Button
                   variant="outline"
                   size="md"
@@ -576,7 +621,7 @@ export function BookingWizard({ worker }: BookingWizardProps) {
                   size="lg"
                   disabled={isSubmitting}
                   onClick={handleConfirm}
-                  className="px-8"
+                  className="px-8 font-bold text-base shadow-card"
                 >
                   {isSubmitting ? "Confirming..." : "Confirm Booking"}
                 </Button>
@@ -588,9 +633,9 @@ export function BookingWizard({ worker }: BookingWizardProps) {
         {/* Right Column: Worker Summary Sidebar */}
         <div className="lg:col-span-4 bg-cream rounded-2xl border border-cream-border p-5 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full overflow-hidden bg-cream-warm border border-cream-border flex-shrink-0">
+            <div className="w-16 h-16 rounded-xl overflow-hidden bg-cream-warm border border-cream-border flex-shrink-0">
               <img
-                src={worker.imageUrl}
+                src={worker.imageUrl || worker.image}
                 alt={worker.name}
                 className="w-full h-full object-cover"
               />
@@ -613,14 +658,16 @@ export function BookingWizard({ worker }: BookingWizardProps) {
 
           <div className="border-t border-cream-border/70 pt-3 text-xs space-y-2">
             <div className="flex justify-between">
-              <span className="text-charcoal-muted">Estimated Duration</span>
-              <span className="font-medium text-charcoal">
-                ~{selectedService?.durationMinutes || 45} mins
-              </span>
+              <span className="text-charcoal-muted">Worker Service Price:</span>
+              <span className="font-semibold text-charcoal">₹{servicePrice}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-charcoal-muted">Warranty</span>
-              <span className="font-medium text-forest">30 Days Cooperative Assured</span>
+              <span className="text-charcoal-muted">Booking Amount:</span>
+              <span className="font-bold text-forest">₹{bookingAmount}</span>
+            </div>
+            <div className="flex justify-between pt-1 border-t border-cream-border/60">
+              <span className="text-charcoal-muted">Remaining Balance:</span>
+              <span className="font-medium text-charcoal">₹{balanceAfterService}</span>
             </div>
           </div>
         </div>

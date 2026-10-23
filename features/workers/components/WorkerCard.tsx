@@ -17,7 +17,7 @@ export function WorkerCard({ worker, layout = "grid" }: WorkerCardProps) {
         {/* Real photo */}
         <div className="relative w-full sm:w-44 h-48 sm:h-auto rounded-lg overflow-hidden flex-shrink-0 bg-cream-warm">
           <img
-            src={worker.imageUrl}
+            src={worker.imageUrl || worker.image}
             alt={worker.name}
             className="w-full h-full object-cover img-zoom transition-transform duration-300"
             loading="lazy"
@@ -125,7 +125,7 @@ export function WorkerCard({ worker, layout = "grid" }: WorkerCardProps) {
         {/* Dominant Real Photo */}
         <div className="relative h-56 w-full overflow-hidden bg-cream-warm">
           <img
-            src={worker.imageUrl}
+            src={worker.imageUrl || worker.image}
             alt={worker.name}
             className="w-full h-full object-cover img-zoom transition-transform duration-300"
             loading="lazy"

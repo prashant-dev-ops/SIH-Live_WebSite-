@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ChatDrawer } from "@/features/chat/components/ChatDrawer";
 import { formatDate } from "@/lib/utils";
+import { BOOKING_CONFIG } from "@/lib/constants";
 
 interface WorkerProfileClientProps {
   worker: WorkerViewModel;
@@ -347,6 +348,16 @@ export function WorkerProfileClient({ worker, reviews }: WorkerProfileClientProp
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
+                  <span className="text-charcoal-muted">Service Price:</span>
+                  <span className="font-semibold text-charcoal">
+                    ₹{worker.servicesPricing.find((s) => s.serviceId === selectedServiceId)?.price || worker.startingPrice}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-charcoal-muted">Booking Amount:</span>
+                  <span className="font-bold text-forest">₹{BOOKING_CONFIG.bookingAmount}</span>
+                </div>
+                <div className="flex justify-between text-xs">
                   <span className="text-charcoal-muted">Selected Slot:</span>
                   <span className="font-semibold text-charcoal">{selectedSlot}</span>
                 </div>
@@ -361,7 +372,7 @@ export function WorkerProfileClient({ worker, reviews }: WorkerProfileClientProp
                   Proceed to Schedule
                 </Button>
                 <p className="text-[11px] text-charcoal-muted text-center">
-                  Zero advance fee required · Pay after inspection
+                  Pay ₹{BOOKING_CONFIG.bookingAmount} to confirm booking · Balance paid after service
                 </p>
               </div>
             </div>

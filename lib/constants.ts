@@ -1,10 +1,21 @@
+/**
+ * Centralized Application & Booking Configuration
+ * All booking amounts and cooperative federation metadata are controlled here.
+ */
+
+export const BOOKING_CONFIG = {
+  bookingAmount: 50, // Centralized advance booking reservation fee (INR 50)
+};
+
+export const BOOKING_AMOUNT = BOOKING_CONFIG.bookingAmount;
+
 export const APP_CONFIG = {
   name: "SevaSaathi",
   tagline: "Trusted Services. Skilled People. Fair Work.",
   description:
     "A cooperative gig-services marketplace connecting customers with verified workers who belong to registered cooperative societies.",
   cooperativeFederation: "Federation of Self-Employed Cooperative Guilds (Reg. No. MH/COOP/2021/489)",
-  platformFee: 25, // INR welfare & insurance fund fee
+  bookingAmount: 50, // Centralized booking reservation amount to confirm appointment
   supportPhone: "+91 1800 209 7382",
   supportEmail: "support@sevasaathi.coop",
 };

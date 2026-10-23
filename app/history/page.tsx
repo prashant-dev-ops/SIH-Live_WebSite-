@@ -1,9 +1,12 @@
 import React from "react";
 import Link from "next/link";
 import { ChevronRight, CalendarCheck, ShieldCheck } from "lucide-react";
+import { bookingFeatureService } from "@/features/bookings/booking.service";
 import { BookingHistoryClient } from "@/features/bookings/components/BookingHistoryClient";
 
-export default function BookingHistoryPage() {
+export default async function BookingHistoryPage() {
+  const initialBookings = await bookingFeatureService.getAllBookings();
+
   return (
     <div className="py-8 sm:py-12 bg-warmwhite min-h-[85vh]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,8 +40,8 @@ export default function BookingHistoryPage() {
           </div>
         </div>
 
-        {/* Interactive Client Component */}
-        <BookingHistoryClient />
+        {/* Interactive Client Component with SSR pre-seeded bookings */}
+        <BookingHistoryClient initialBookings={initialBookings} />
       </div>
     </div>
   );

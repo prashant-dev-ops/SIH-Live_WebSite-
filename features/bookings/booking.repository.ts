@@ -1,8 +1,9 @@
 import { Booking, BookingStatus, INITIAL_MOCK_BOOKINGS } from "@/data/bookings";
 import { BookingDraft } from "./booking.types";
-import { APP_CONFIG } from "@/lib/constants";
+import { BOOKING_CONFIG } from "@/lib/constants";
 
 export interface IBookingRepository {
+  getBookingAmount(): Promise<number>;
   getAll(): Promise<Booking[]>;
   getById(id: string): Promise<Booking | null>;
   getByStatus(status: BookingStatus): Promise<Booking[]>;
@@ -10,11 +11,15 @@ export interface IBookingRepository {
   cancelBooking(id: string): Promise<Booking | null>;
 }
 
-const STORAGE_KEY = "sevasaathi_bookings_v1";
+const STORAGE_KEY = "sevasaathi_bookings_v2";
 
 export class LocalStorageBookingRepository implements IBookingRepository {
   private inMemoryCache: Booking[] = [...INITIAL_MOCK_BOOKINGS];
   private isLoadedFromStorage = false;
+
+  async getBookingAmount(): Promise<number> {
+    return BOOKING_CONFIG.bookingAmount;
+  }
 
   private getStore(): Booking[] {
     if (typeof window === "undefined") {
@@ -66,8 +71,9 @@ export class LocalStorageBookingRepository implements IBookingRepository {
 
   async create(draft: BookingDraft): Promise<Booking> {
     const list = this.getStore();
-    const platformFee = APP_CONFIG.platformFee;
-    const totalAmount = draft.serviceAmount + platformFee;
+    const bookingAmount = draft.bookingAmount ?? BOOKING_CONFIG.bookingAmount;
+    const serviceAmount = draft.serviceAmount;
+    const remainingAmount = Math.max(0, serviceAmount - bookingAmount);
     const generatedId = `BK-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const newBooking: Booking = {
@@ -76,13 +82,16 @@ export class LocalStorageBookingRepository implements IBookingRepository {
       workerName: draft.workerName,
       workerTrade: draft.workerTrade,
       workerImageKey: draft.workerImageKey,
+      workerImage: draft.workerImage,
       serviceName: draft.serviceName,
       categorySlug: draft.categorySlug,
       date: draft.date,
       timeSlot: draft.timeSlot,
-      serviceAmount: draft.serviceAmount,
-      platformFee,
-      totalAmount,
+      serviceAmount,
+      bookingAmount,
+      amountPaidNow: bookingAmount,
+      remainingAmount,
+      totalAmount: serviceAmount,
       status: "upcoming",
       customerName: draft.customerName,
       customerPhone: draft.customerPhone,
